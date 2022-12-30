@@ -1,0 +1,44 @@
+﻿@page "/projects"
+@using BlazorDevOps.Shared;
+@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
+@inject IHttpClientFactory ClientFactory
+@attribute [Authorize]
+
+<PageTitle>Projects</PageTitle>
+
+<h3>Projects</h3>
+@if (projects is null)
+{
+    <div>Loading...</div>
+}
+else
+{
+    <ul>
+        @foreach (var p in projects)
+        {
+            <li><a href="@p.Url" target="_blank">@p.Name</a></li>
+        }
+    </ul>
+}
+
+@code {
+    private ProjectItem[]? projects;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var http = ClientFactory.CreateClient("BlazorDevOps.ServerAPI");
+            projects = await http.GetFromJsonAsync<ProjectItem[]>("api/Project");
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+}
