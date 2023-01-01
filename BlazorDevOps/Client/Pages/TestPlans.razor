@@ -1,0 +1,54 @@
+﻿@page "/testplans/{projectId}"
+@using BlazorDevOps.Shared;
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
+@inject IHttpClientFactory ClientFactory
+<h3>Test Plans</h3>
+
+@if (testPlans == null)
+{
+    <div>Loading...</div>
+}
+else
+{
+    <div class="card sb-3">
+        <dl>
+            <dt>Project Id</dt>
+            <dd>@projectDetails?.Id</dd>
+
+            <dt>Project Name</dt>
+            <dd>@projectDetails?.Name</dd>
+        </dl>
+    </div>
+    <ul>
+        @foreach (var t in testPlans)
+        {
+            <li>@t.Name</li>
+        }
+    </ul>
+}
+
+@code {
+    [Parameter]
+    public string projectId { get; set; } = default!;
+
+    private ProjectItem? projectDetails;
+    private TestPlanItem[]? testPlans;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var http = ClientFactory.CreateClient("BlazorDevOps.ServerAPI");
+            projectDetails = await http.GetFromJsonAsync<ProjectItem>($"api/project/{projectId}");
+            testPlans = await http.GetFromJsonAsync<TestPlanItem[]>($"api/testPlan?projectId={projectId}");
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+}

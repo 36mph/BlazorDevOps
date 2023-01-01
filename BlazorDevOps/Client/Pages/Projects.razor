@@ -17,7 +17,7 @@ else
     <ul>
         @foreach (var p in projects)
         {
-            <li><a href="@p.Url" target="_blank">@p.Name</a></li>
+            <li><a href="@p.Url" target="_blank">@p.Name</a> - <a href="/testplans/@p.Id.ToString()"><span class="oi oi-beaker"></span></a></li>
         }
     </ul>
 }
@@ -30,7 +30,7 @@ else
         try
         {
             var http = ClientFactory.CreateClient("BlazorDevOps.ServerAPI");
-            projects = await http.GetFromJsonAsync<ProjectItem[]>("api/Project");
+            projects = await http.GetFromJsonAsync<ProjectItem[]>("api/project");
         }
         catch (AccessTokenNotAvailableException exception)
         {
